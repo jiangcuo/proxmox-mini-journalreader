@@ -9,6 +9,8 @@ BUILDDIR ?= ${PACKAGE}-${DEB_VERSION_UPSTREAM}
 
 DEB=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
 DBGDEB=${PACKAGE}-dbgsym_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
+DEBS=${DEB} ${DBGDEB}
+
 DSC=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}.dsc
 
 all: $(DEB)
@@ -19,7 +21,8 @@ $(BUILDDIR): src debian
 	echo "git clone git://git.proxmox.com/git/proxmox-mini-journal\\ngit checkout $(GITVERSION)" > $(BUILDDIR)/debian/SOURCE
 
 .PHONY: deb
-deb: $(DEB)
+deb: $(DEBS)
+$(DEBS): $(DEB)
 $(DEB): $(BUILDDIR)
 	cd $(BUILDDIR); dpkg-buildpackage -b -us -uc
 	lintian $(DEB)
@@ -38,5 +41,5 @@ clean:
 	rm -rf $(BUILDDIR) *.deb *.buildinfo *.changes *.dsc *.tar.gz
 
 .PHONY: upload
-upload: ${DEB}
-	tar cf - ${DEB}|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist bullseye --arch ${DEB_BUILD_ARCH}
+upload: ${DEBS}
+	tar cf - ${DEBS}|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist bullseye --arch ${DEB_BUILD_ARCH}
