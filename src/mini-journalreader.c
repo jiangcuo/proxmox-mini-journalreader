@@ -32,6 +32,8 @@
 #define BUFSIZE 4096
 
 static char BUF[BUFSIZE];
+bool json = false;
+bool first_line = true;
 
 static uint64_t get_timestamp(sd_journal *j) {
     uint64_t timestamp;
@@ -63,8 +65,19 @@ static void print_cursor(sd_journal *j) {
         fprintf(stderr, "Failed to get cursor: %s\n", strerror(-r));
         exit(1);
     }
+    if (json) {
+	if (!first_line) {
+	    print_to_buf(",\"", 2);
+	} else {
+	    print_to_buf("\"", 1);
+	}
+    }
     print_to_buf(cursor, strlen(cursor));
+    if (json) {
+	print_to_buf("\"", 1);
+    }
     print_to_buf("\n", 1);
+    first_line = false;
     free(cursor);
 }
 
@@ -93,7 +106,15 @@ static void print_reboot(sd_journal *j) {
     if (bootid[0] != '\0') { // we have some bootid
         if (memcmp(bootid, d, l)) { // a new bootid found
             memcpy(bootid, d, l);
-            print_to_buf("-- Reboot --\n", 13);
+            if (json) {
+                if (!first_line) {
+                    print_to_buf(",", 1);
+                }
+                print_to_buf("\"-- Reboot --\"\n", 15);
+                first_line = false;
+            } else {
+                print_to_buf("-- Reboot --\n", 13);
+            }
         }
     } else {
         memcpy(bootid, d, l);
@@ -149,13 +170,35 @@ static bool print_field(sd_journal *j, const char *field) {
     size_t fieldlen = strlen(field)+1;
     d += fieldlen;
     l -= fieldlen;
-    print_to_buf(d, l);
+
+    if (json) {
+	char tmp[7];
+	for (size_t i = 0; i < l;i++) {
+	    if (d[i] == '"' || d[i] == '\\' || (d[i] >= 0 && d[i] <= 0x1F)) {
+		sprintf(tmp, "\\u%04X", d[i]);
+		print_to_buf(tmp, 6);
+	    } else {
+		print_to_buf(d+i, 1);
+	    }
+	}
+    } else {
+	print_to_buf(d, l);
+    }
     return true;
 }
 
 
 static void print_line(sd_journal *j) {
     print_reboot(j);
+
+    if (json) {
+        if (!first_line) {
+            print_to_buf(",", 1);
+        }
+        print_to_buf("\"", 1);
+        first_line = false;
+    }
+
     print_timestamp(j);
     print_to_buf(" ", 1);
     print_field(j, "_HOSTNAME");
@@ -167,6 +210,11 @@ static void print_line(sd_journal *j) {
     print_pid(j);
     print_to_buf(": ", 2);
     print_field(j, "MESSAGE");
+
+    if (json) {
+        print_to_buf("\"", 1);
+    }
+
     print_to_buf("\n", 1);
 }
 
@@ -184,6 +232,7 @@ _Noreturn static void usage(char *error) {
         "  -n <integer>\t\tprint the last number entries logged\n"
         "  -f <cursor>\t\tprint from this cursor\n"
         "  -t <cursor>\t\tprint to this cursor\n"
+        "  -j \t\t\tprint as json"
         "  -h \t\t\tthis help\n"
         "\n"
         "Passing no range option will dump all the available journal\n"
@@ -217,7 +266,7 @@ int main(int argc, char *argv[]) {
 
     progname = argv[0];
 
-    while ((c = (char)getopt (argc, argv, "b:e:d:n:f:t:h")) != -1) {
+    while ((c = (char)getopt (argc, argv, "b:e:d:n:f:t:jh")) != -1) {
         switch (c) {
             case 'b':
                 begin = arg_to_uint64(optarg);
@@ -238,6 +287,9 @@ int main(int argc, char *argv[]) {
                 break;
             case 't':
                 endcursor = optarg;
+                break;
+            case 'j':
+                json = true;
                 break;
             case 'h':
                 usage(NULL);
@@ -283,6 +335,10 @@ int main(int argc, char *argv[]) {
     if (r < 0) {
         fprintf(stderr, "Failed to open journal: %s\n", strerror(-r));
         return 1;
+    }
+
+    if (json) {
+        print_to_buf("{\"data\":[", 9);
     }
 
     // if we want to print the last x entries, seek to cursor or end,
@@ -349,6 +405,10 @@ int main(int argc, char *argv[]) {
     // print final cursor
     print_cursor(j);
     sd_journal_close(j);
+
+    if (json) {
+        print_to_buf("],\"success\":1}", 14);
+    }
 
     // print remaining buffer
     fflush_unlocked(stdout);
