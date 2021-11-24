@@ -39,4 +39,4 @@ clean:
 
 .PHONY: upload
 upload: ${DEB}
-	tar cf - ${DEB}|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist buster --arch ${DEB_BUILD_ARCH}
+	tar cf - ${DEB}|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist bullseye --arch ${DEB_BUILD_ARCH}
