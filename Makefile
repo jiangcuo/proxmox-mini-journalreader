@@ -5,13 +5,13 @@ PACKAGE := proxmox-mini-journalreader
 
 GITVERSION:=$(shell git rev-parse HEAD)
 
-BUILDDIR ?= ${PACKAGE}-${DEB_VERSION_UPSTREAM}
+BUILDDIR ?= $(PACKAGE)-$(DEB_VERSION_UPSTREAM)
 
-DEB=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
-DBGDEB=${PACKAGE}-dbgsym_${DEB_VERSION_UPSTREAM_REVISION}_${DEB_BUILD_ARCH}.deb
-DEBS=${DEB} ${DBGDEB}
+DEB=$(PACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb
+DBGDEB=$(PACKAGE)-dbgsym_$(DEB_VERSION_UPSTREAM_REVISION)_$(DEB_BUILD_ARCH).deb
+DEBS=$(DEB) $(DBGDEB)
 
-DSC=${PACKAGE}_${DEB_VERSION_UPSTREAM_REVISION}.dsc
+DSC=$(PACKAGE)_$(DEB_VERSION_UPSTREAM_REVISION).dsc
 
 all: $(DEB)
 
@@ -28,10 +28,10 @@ $(DEB): $(BUILDDIR)
 	lintian $(DEB)
 
 .PHONY: dsc
-dsc: ${DSC}
-${DSC}: ${BUILDDIR}
-	cd ${BUILDDIR}; dpkg-buildpackage -S -us -uc -d
-	lintian ${DSC}
+dsc: $(DSC)
+$(DSC): $(BUILDDIR)
+	cd $(BUILDDIR); dpkg-buildpackage -S -us -uc -d
+	lintian $(DSC)
 
 dinstall: $(DEB)
 	dpkg -i $(DEB)
@@ -41,5 +41,5 @@ clean:
 	rm -rf $(BUILDDIR) *.deb *.buildinfo *.changes *.dsc *.tar.gz
 
 .PHONY: upload
-upload: ${DEBS}
-	tar cf - ${DEBS}|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist bullseye --arch ${DEB_BUILD_ARCH}
+upload: $(DEBS)
+	tar cf - $(DEBS)|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist bullseye --arch $(DEB_BUILD_ARCH)
