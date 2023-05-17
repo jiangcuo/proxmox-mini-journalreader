@@ -33,6 +33,9 @@ $(DSC): $(BUILDDIR)
 	cd $(BUILDDIR); dpkg-buildpackage -S -us -uc -d
 	lintian $(DSC)
 
+sbuild: $(DSC)
+	sbuild $(DSC)
+
 dinstall: $(DEB)
 	dpkg -i $(DEB)
 
