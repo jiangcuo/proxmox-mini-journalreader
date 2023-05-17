@@ -5,7 +5,7 @@ BIN_DIR ?= $(DESTDIR)/usr/bin
 MAN1_DIR ?= $(DESTDIR)/usr/share/man/man1
 
 LIBS := libsystemd
-CFLAGS += -Werror -Wall -Wextra -Wl,-z,relro -g -O2
+CFLAGS += -Werror -Wall -Wextra -Wl,-z,relro -g -O2 --std=gnu11
 CFLAGS += -fstack-protector-strong -D_FORTIFY_SOURCE=2
 CFLAGS += $(shell pkg-config --cflags $(LIBS))
 LDFLAGS += $(shell pkg-config --libs $(LIBS))
