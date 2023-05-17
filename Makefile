@@ -45,4 +45,4 @@ clean:
 
 .PHONY: upload
 upload: $(DEBS)
-	tar cf - $(DEBS)|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg --dist bullseye --arch $(DEB_BUILD_ARCH)
+	tar cf - $(DEBS)|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg,pbs --dist bullseye --arch $(DEB_BUILD_ARCH)
