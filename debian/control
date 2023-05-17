@@ -2,12 +2,12 @@ Source: proxmox-mini-journalreader
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper-compat (= 13), libsystemd-dev, pkg-config
+Build-Depends: debhelper-compat (= 13), libsystemd-dev, pkg-config, scdoc,
 Standards-Version: 4.6.2
 
 Package: proxmox-mini-journalreader
 Architecture: any
-Depends: ${misc:Depends}, ${shlibs:Depends}
+Depends: ${misc:Depends}, ${shlibs:Depends},
 Description: Minimal systemd Journal Reader
  A minimal application to read the last X lines of the systemd journal or the
  last X lines before a cursor.
