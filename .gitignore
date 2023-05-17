@@ -2,4 +2,8 @@
 *.dsc
 *.buildinfo
 *.changes
-
+/*.tar.*
+/*.build
+/proxmox-mini-journalreader-*/
+/src/proxmox-mini-journalreader.1
+/src/mini-journalreader
