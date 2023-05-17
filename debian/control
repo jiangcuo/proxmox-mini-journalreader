@@ -2,7 +2,7 @@ Source: proxmox-mini-journalreader
 Section: admin
 Priority: optional
 Maintainer: Proxmox Support Team <support@proxmox.com>
-Build-Depends: debhelper (>= 12~), libsystemd-dev, pkg-config
+Build-Depends: debhelper-compat (= 13), libsystemd-dev, pkg-config
 Standards-Version: 4.5.1
 
 Package: proxmox-mini-journalreader
