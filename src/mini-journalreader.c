@@ -61,15 +61,15 @@ static void print_cursor(sd_journal *j) {
         exit(1);
     }
     if (json) {
-	if (!first_line) {
-	    print_to_buf(",\"", 2);
-	} else {
-	    print_to_buf("\"", 1);
-	}
+        if (!first_line) {
+            print_to_buf(",\"", 2);
+        } else {
+            print_to_buf("\"", 1);
+        }
     }
     print_to_buf(cursor, strlen(cursor));
     if (json) {
-	print_to_buf("\"", 1);
+        print_to_buf("\"", 1);
     }
     print_to_buf("\n", 1);
     first_line = false;
@@ -167,17 +167,17 @@ static bool print_field(sd_journal *j, const char *field) {
     l -= fieldlen;
 
     if (json) {
-	char tmp[7];
-	for (size_t i = 0; i < l;i++) {
-	    if (d[i] == '"' || d[i] == '\\' || (d[i] >= 0 && d[i] <= 0x1F)) {
-		sprintf(tmp, "\\u%04X", d[i]);
-		print_to_buf(tmp, 6);
-	    } else {
-		print_to_buf(d+i, 1);
-	    }
-	}
+        char tmp[7];
+        for (size_t i = 0; i < l;i++) {
+            if (d[i] == '"' || d[i] == '\\' || (d[i] >= 0 && d[i] <= 0x1F)) {
+                sprintf(tmp, "\\u%04X", d[i]);
+                print_to_buf(tmp, 6);
+            } else {
+                print_to_buf(d+i, 1);
+            }
+        }
     } else {
-	print_to_buf(d, l);
+        print_to_buf(d, l);
     }
     return true;
 }
@@ -198,8 +198,7 @@ static void print_line(sd_journal *j) {
     print_to_buf(" ", 1);
     print_field(j, "_HOSTNAME");
     print_to_buf(" ", 1);
-    if (!print_field(j, "SYSLOG_IDENTIFIER") &&
-            !print_field(j, "_COMM")) {
+    if (!print_field(j, "SYSLOG_IDENTIFIER") && !print_field(j, "_COMM")) {
         print_to_buf("unknown", strlen("unknown") - 1);
     }
     print_pid(j);
@@ -336,9 +335,8 @@ int main(int argc, char *argv[]) {
         print_to_buf("{\"data\":[", 9);
     }
 
-    // if we want to print the last x entries, seek to cursor or end,
-    // then x entries back, print the cursor and finally print the
-    // entries until end or cursor
+    // if we want to print the last x entries, seek to cursor or end, then x entries back, print the
+    // cursor and finally print the entries until end or cursor
     if (number) {
         if (end) {
             r = sd_journal_seek_realtime_usec(j, end);
