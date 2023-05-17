@@ -21,11 +21,11 @@ $(BUILDDIR): src debian
 	echo "git clone git://git.proxmox.com/git/proxmox-mini-journal\\ngit checkout $(GITVERSION)" > $(BUILDDIR)/debian/SOURCE
 
 .PHONY: deb
-deb: $(DEBS)
-$(DEBS): $(DEB)
+deb: $(DEB)
+$(DBGDEB): $(DEB)
 $(DEB): $(BUILDDIR)
 	cd $(BUILDDIR); dpkg-buildpackage -b -us -uc
-	lintian $(DEB)
+	lintian $(DEBS)
 
 .PHONY: dsc
 dsc: $(DSC)
