@@ -44,5 +44,6 @@ clean:
 	rm -rf $(PACKAGE)-[0-9]*/ *.deb *.buildinfo *.build *.changes *.dsc *.tar.*
 
 .PHONY: upload
+upload: UPLOAD_DIST ?= $(DEB_DISTRIBUTION)
 upload: $(DEBS)
-	tar cf - $(DEBS)|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg,pbs --dist bullseye --arch $(DEB_BUILD_ARCH)
+	tar cf - $(DEBS)|ssh -X repoman@repo.proxmox.com -- upload --product pve,pmg,pbs --dist $(UPLOAD_DIST) --arch $(DEB_BUILD_ARCH)
